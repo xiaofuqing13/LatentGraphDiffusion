@@ -1,47 +1,83 @@
-# Latent Graph Diffusion
-Official Repository for NeurIPS 2024 Paper [Unifying Generation and Prediction on Graphs with Latent Graph Diffusion](https://openreview.net/pdf?id=lvibangnAs).
+# Latent Graph Diffusion (LGD) 论文复现
 
-![Latent Graph Diffusion](./LatentGraphDiffusion.png)
+论文 *Unifying Generation and Prediction on Graphs with Latent Graph Diffusion* 的复现项目，基于 [原始代码](https://github.com/zhouc20/LatentGraphDiffusion) 修改，适配 Python 3.12 和新 GPU 架构（RTX 50系列），目标是复现论文 Table 4 中的 Node-level Classification 结果。
 
-In this paper, we propose the first framework that enables solving graph learning tasks of all levels (node, edge and graph) and all types (generation, regression and classification) using one formulation. We first formulate prediction tasks including regression and classification into a generic (conditional) generation framework, which enables diffusion models to perform deterministic tasks with provable guarantees. We then propose Latent Graph Diffusion (LGD), a generative model that can generate node, edge, and graph-level features of all categories simultaneously. We achieve this goal by embedding the graph structures and features into a latent space leveraging a powerful encoder and decoder, then training a diffusion model in the latent space. LGD is also capable of conditional generation through a specifically designed cross-attention mechanism. Leveraging LGD and the ``all tasks as generation'' formulation, our framework is capable of solving graph tasks of various levels and types. We verify the effectiveness of our framework with extensive experiments, where our models achieve state-of-the-art or highly competitive results across a wide range of generation and regression tasks.
+## 复现目标
 
-### Python environment setup with Conda
+论文 Table 4 结果（10次独立运行取平均值）：
 
-We build our code based on [GraphGPS](https://github.com/rampasek/GraphGPS) with many modification and improvements, including combining it with DDPM.
+| 数据集 | Photo | Physics | OGBN-Arxiv |
+|--------|-------|---------|------------|
+| LGD | 96.94 ± 0.14 | 98.55 ± 0.12 | 73.17 ± 0.22 |
+
+## 环境要求
+
+- GPU：NVIDIA GPU，显存 >= 8GB
+- CUDA >= 11.8
+- Python 3.10 ~ 3.12
+- PyTorch >= 2.0
+
+## 安装与运行
 
 ```bash
-conda create -n lgd python=3.9
-conda activate lgd
+# 创建并激活虚拟环境
+python -m venv venv
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # Linux
 
-conda install pytorch=1.10 torchvision torchaudio -c pytorch -c nvidia
-conda install pyg=2.0.4 -c pyg -c conda-forge
+# 安装 PyTorch（根据 CUDA 版本调整链接）
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
-# RDKit is required for OGB-LSC PCQM4Mv2 and datasets derived from it.  
-conda install openbabel fsspec rdkit -c conda-forge
+# 安装依赖
+pip install torch_geometric pytorch_lightning matplotlib seaborn rdkit ogb yacs tensorboardX
 
-pip install torchmetrics
-pip install performer-pytorch
-pip install ogb
-pip install tensorboardX
-pip install wandb
-
-conda clean --all
+# 可选：安装 torch_scatter/torch_sparse（失败不影响，已有内置兼容层）
+pip install torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-2.10.0+cu128.html
 ```
 
-### Running LGD
+运行训练：
 
 ```bash
-conda activate lgd
+# 一键运行 Photo 数据集完整复现
+python run_photo.py
 
-# An example to run experiments on Zinc dataset; change the configs files to run other experiments on different datasets with desired hyperparameters
-# The commands are all in cfg/xxx.sh, and the configurations are set in cfg/xxx.yaml
+# 或手动分步执行
+python pretrain.py --cfg cfg/photo-encoder.yaml --repeat 10 wandb.use False
+python find_best_ckpt.py
+python train_diffusion.py --cfg cfg/photo-diffusion.yaml --repeat 10 wandb.use False
+```
 
-# The first step is to pretrain an autoencoder
-python pretrain.py --cfg cfg/zinc-encoder.yaml --repeat 5 wandb.use False
+## 项目结构
 
-# Then train LGD
-python train_diffusion.py --cfg cfg/zinc-diffusion_ddpm.yaml --repeat 5 wandb.use False
+```
+pretrain.py           Encoder 预训练入口
+train_diffusion.py    Diffusion 训练入口
+run_photo.py          一键运行脚本
+find_best_ckpt.py     自动查找最佳 checkpoint
+scatter_compat.py     torch_scatter/torch_sparse 兼容层
+cfg/                  训练配置文件
+lgd/                  核心模型代码
+docs/                 详细复现文档
+```
 
-# Remember to change the file path of the checkpoint of the autoencoder in diffusion.first_stage_config
+## 相比原项目的修改
 
+- `scatter_compat.py`：纯 PyTorch 重写 scatter 算子，解决新 GPU 架构下 torch_scatter 编译失败的问题
+- `lgd/__init__.py`：原项目缺失该文件，补充后确保 GraphGym 配置自动注册
+- `utils.py`：移除 Python 3.12 已删除的 `import imp`
+- `pretrain.py` / `train_diffusion.py`：在文件开头加载兼容层
+
+## 文档
+
+详细的环境搭建、安装配置、运行说明和常见问题解答见 [docs/LGD复现指南.md](docs/LGD复现指南.md)
+
+## 引用
+
+```bibtex
+@article{zhou2024unifying,
+  title={Unifying Generation and Prediction on Graphs with Latent Graph Diffusion},
+  author={Zhou, Cai and others},
+  journal={arXiv preprint arXiv:2402.02518},
+  year={2024}
+}
 ```

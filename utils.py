@@ -5,7 +5,8 @@ from torch_geometric.utils import dense_to_sparse
 import random
 import logging
 
-import imp
+
+
 from torch_geometric.data import InMemoryDataset
 from torch_geometric.graphgym.config import cfg
 

@@ -1,6 +1,7 @@
 # TODO: (1) preprocess and store the dataset;
 #  (2) pretrain the encoder and decoder with classification and graph regression loss, store checkpoints;
 
+import scatter_compat  # noqa, monkey-patch torch_scatter before any other import
 import lgd  # noqa, register custom modules
 import argparse
 import datetime
