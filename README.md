@@ -71,6 +71,16 @@ docs/                 详细复现文档
 
 详细的环境搭建、安装配置、运行说明和常见问题解答见 [docs/LGD复现指南.md](docs/LGD复现指南.md)
 
+
+
+### 训练曲线
+
+![训练曲线](images/training_curves.png)
+
+### 图生成效果
+
+![生成结果对比](images/generation_results.png)
+
 ## 引用
 
 ```bibtex
