@@ -91,3 +91,10 @@ docs/                 详细复现文档
   year={2024}
 }
 ```
+
+
+### 节点分类性能对比
+
+在 Cora、Citeseer、Pubmed 基准数据集上与 GCN、GAT 等方法的对比结果。
+
+![节点分类对比](images/node_classification.png)
