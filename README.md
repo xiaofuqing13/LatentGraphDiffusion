@@ -1,5 +1,8 @@
 # Latent Graph Diffusion (LGD) 论文复现
 
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white) ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green)
+
+
 论文 *Unifying Generation and Prediction on Graphs with Latent Graph Diffusion* 的复现项目，基于 [原始代码](https://github.com/zhouc20/LatentGraphDiffusion) 修改，适配 Python 3.12 和新 GPU 架构（RTX 50系列），目标是复现论文 Table 4 中的 Node-level Classification 结果。
 
 ## 复现目标
